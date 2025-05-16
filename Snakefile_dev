@@ -1,0 +1,81 @@
+
+# MAIN SNAKEFILE
+# Config file
+configfile: "config.yaml"
+# To get the samples names form sample 
+import glob
+
+input_dir = "/home/operator/Downloads/ab_analitica_pt2/vcf/call/"
+(SAMPLES,) = glob_wildcards(input_dir + "{sample}.visual_report.html")
+
+print(SAMPLES)
+
+
+# if config["use_bwa"]:
+#     include: "rules/bwa_mem.snakefile"
+# else: 
+#     include: "rules/dragmap.snakefile"
+
+# # Choose gatk_haplotype caller or deepvariant
+# if config["use_gatk"]:
+#     include: "rules/haplotypeCaller.snakefile"
+#     include: "rules/genotyping_gatk.snakefile"
+# else: 
+#     import subprocess
+
+#     try:
+#         # Verifica se o Docker está instalado
+#         subprocess.run(['singularity', '--version'], check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+#         singularity_installed = True
+#     except subprocess.CalledProcessError:
+#         singularity_installed = False
+
+#     if singularity_installed:
+#         print("Singularity is installed.")
+#         include: "rules/deepvariant_singularity.snakefile"
+
+#     else:
+#         print(
+#             """
+#             Singularity is not installed or is not accessible!
+#             Running haplotype Caller insted!
+#             Install singularity and try again!
+#             """)
+#         include: "rules/haplotypeCaller.snakefile"
+#         include: "rules/genotyping_gatk.snakefile"
+
+
+# To import the rules for each tool
+#include: "rules/multiqc.snakefile"
+#include: "rules/fastp.snakefile"
+#include: "rules/markduplicates.snakefile"
+#include: "rules/recal_table.snakefile"
+#include: "rules/recal_apply.snakefile"
+include: "rules/deepvariant_singularity.snakefile"
+include: "rules/selectVar.snakefile"
+include: "rules/filterVar.snakefile"
+include: "rules/concat_bcftools.snakefile"
+include: "rules/funcotator.snakefile"
+
+
+# rule all for all output files
+rule all:
+    input:
+        # config["output"] + "output_interomics/multiqc/", # output from multiqc
+        # expand(config["output"] + "output_interomics/fastp/{sample}_fastp_1.fastq.gz", sample=SAMPLES), # output from fastp
+        # expand(config["output"] + "output_interomics/fastp/{sample}_fastp_2.fastq.gz", sample=SAMPLES), # output from fastp
+        # expand(config["output"] + "output_interomics/fastp/{sample}_fastp.html", sample=SAMPLES), # output from fastp
+        # expand(config["output"] + "output_interomics/fastp/{sample}_fastp.json", sample=SAMPLES),   # output from fastp
+        # expand(config["output"] + "output_interomics/aligned/{sample}_aligned.bam", sample=SAMPLES), # output from mappers
+        # expand(config["output"] + "output_interomics/marked/{sample}_markduplicates.bam", sample=SAMPLES), # output from markduplicates
+        # expand(config["output"] + "output_interomics/marked/{sample}_markduplicates_metrics.txt", sample=SAMPLES), # output from markduplicates
+        # expand(config["output"] + "output_interomics/recal_table/{sample}_recal.grp", sample=SAMPLES), # output from baserecalibration
+        # expand(config["output"] + "output_interomics/recal_apply/{sample}_markduplicates_recal.bam", sample=SAMPLES), #output base recalibration (rule recal_apply)
+        #expand(config["output"] + "output_interomics/vcf/call/{sample}.g.vcf.gz", sample=SAMPLES), #output variante caller
+        #expand(config["output"] + "output_interomics/vcf/call/{sample}.vcf.gz", sample=SAMPLES), #output GVCF
+        expand(config["output"] + "output_interomics/vcf/selected/{sample}_raw_snps.vcf.gz", sample=SAMPLES), #output selectVar
+        expand(config["output"] + "output_interomics/vcf/selected/{sample}_raw_indels.vcf.gz", sample=SAMPLES), #output selectVar
+        expand(config["output"] + "output_interomics/vcf/filtered/{sample}_filtered_snps.vcf.gz", sample=SAMPLES), #output filterVar
+        expand(config["output"] + "output_interomics/vcf/filtered/{sample}_filtered_indels.vcf.gz", sample=SAMPLES), #output filterVar
+        expand(config["output"] + "output_interomics/vcf/filtered/{sample}_filtered.vcf.gz", sample=SAMPLES), #output concat_bcftools
+        expand(config["output"] + "output_interomics/funcotator/{sample}_funcotator.vcf.gz", sample=SAMPLES), #output funcotator

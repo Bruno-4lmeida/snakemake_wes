@@ -1,0 +1,48 @@
+#germline or somatica
+germline: True
+
+# align
+use_bwa: True # if False dragmap will be used instead
+
+# variant caller
+use_gatk: True # if False deepvariant will be used instead
+use_deepvariant: False
+use_strelka: True
+
+# IF use gatk false, set model type (WES or WGS) and threads-deepvariant
+model_type: WES
+
+# GENERAL-INPUT CHANGE FREELY 
+# paths always with "/" at the end!
+input: /home/operator/Downloads/ab_analitica/output_interomics/recal_apply/
+
+output: /home/operator/Downloads/ab_analitica/
+
+refgenome:
+   ref_dir: /home/operator/InterOmics/workflows/interomics_snakemake/reference/
+   ref: /home/operator/InterOmics/workflows/interomics_snakemake/reference/GRCh38_numeric_genome.fasta
+   bed: /home/operator/InterOmics/workflows/interomics_snakemake/reference/abanalitica_exome.numeric.bed
+   #/home/operator/InterOmics/apps/gatk_resources/SureSelectXT_Human_All_Exon_V7.bed
+   interval: /home/operator/InterOmics/apps/gatk_resources/abanalitica_exome.interval_list
+   #SureSelectXT_Human_All_Exon_V6+UTRs.interval_list
+   dict: /home/operator/InterOmics/workflows/interomics_snakemake/reference/GRCh38_character_genome.dict
+   known_var: /home/operator/InterOmics/workflows/interomics_snakemake/reference/dbsnp_156_chr.vcf.gz
+   data_source: /home/operator/InterOmics/workflows/interomics_snakemake/data_source/funcotator_germline
+
+
+# DEFAULT OPTIONS (DO NOT CHANGE)
+# singularity pull deepvariant_latest.sif docker://google/deepvariant:latest
+# or singularity pull docker://google/deepvariant:latest
+
+deepvariant_sif_path: /home/operator/InterOmics/workflows/interomics_snakemake/deepvariant_latest.sif
+threads: 
+   others: 1 
+   bwa: 13
+   gatk:
+   deepvariant: 56
+
+ram_memory:
+   markduplicates: 102400
+   recal_table: 102400
+   bwa:
+   gatk:
