@@ -1,0 +1,83 @@
+#!/bin/bash
+
+# Função para exibir a ajuda
+usage() {
+    echo "Uso: $0 ./deepvariant.sh -l <bam_dir> -d <ref_dir> -o <output_dir> -s <sample_name> -r <ref_name> -t <num_shard> -m <model type>"
+    exit 1
+}
+
+# Inicializa variáveis
+BAM_DIR=""
+REF_DIR=""
+OUTPUT=""
+SAMPLE_NAME=""
+REF_NAME=""
+NUM_SHARDS=""
+MODEL_TYPE=""
+
+# Processa os argumentos
+while getopts ":l:d:o:s:r:t:m:" opt; do
+    case ${opt} in
+        b_dir )
+            BAM_DIR=$OPTARG
+            ;;
+        rd )
+            REF_DIR=$OPTARG
+            ;;
+        o )
+            OUTPUT=$OPTARG
+            ;;
+        s )
+            SAMPLE_NAME=$OPTARG
+            ;;
+        rn )
+            REF_NAME=$OPTARG
+            ;;
+        n )
+            NUM_SHARDS=$OPTARG
+            ;;
+        m )
+            MODEL_TYPE=$OPTARG
+            ;;
+        \? )
+            echo "Opção inválida: -$OPTARG" 1>&2
+            usage
+            ;;
+        : )
+            echo "A opção -$OPTARG requer um argumento." 1>&2
+            usage
+            ;;
+    esac
+done
+shift $((OPTIND -1))
+
+# Verifica se todos os argumentos foram fornecidos
+if [ -z "${BAM_DIR}" ] || [ -z "${REF_DIR}" ] || [ -z "${OUTPUT}" ] || [ -z "${SAMPLE_NAME}" ] || [ -z "${REF_NAME}" ] || [ -z "${NUM_SHARDS}" ] || [ -z "${MODEL_TYPE}" ]; then
+    usage
+fi
+
+# Usa as variáveis
+echo "Arquivo BAM: $BAM_DIR"
+echo "Arquivo de Referência: $REF_DIR"
+echo "Diretório de Saída: $OUTPUT"
+echo "Nome da Amostra: $SAMPLE_NAME"
+echo "Número de Shards: $REF_NAME"
+echo "Número de Shards: $NUM_SHARDS"
+echo "Número de Shards: $MODEL_TYPE"
+
+
+# Aqui você pode adicionar o comando ou lógica para processar os arquivos
+# Exemplo:
+# sudo docker run \
+#     --rm \
+#     -v ${BAM_DIR}:${BAM_DIR} \
+#     -v ${REF_DIR}:${REF_DIR} \
+#     -v ${OUTPUT}:${OUTPUT} \
+#     google/deepvariant:latest \
+#     /opt/deepvariant/bin/run_deepvariant \
+#     --num_shards=${NUM_SHARDS} \
+#     --model_type=WES \
+#     --ref=${REF_DIR} \
+#     --reads=${BAM_DIR} \
+#     --output_vcf=${OUTPUT}/${SAMPLE_NAME}.vcf \
+#     --output_gvcf=${OUTPUT}/${SAMPLE_NAME}.g.vcf.gz

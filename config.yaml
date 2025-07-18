@@ -14,15 +14,14 @@ model_type: WES
 
 # GENERAL-INPUT CHANGE FREELY 
 # paths always with "/" at the end!
-input: /home/operator/Downloads/ab_analitica/output_interomics/recal_apply/
+input: /home/operator/InterOmics/workflows/interomics_snakemake/samples/
 
-output: /home/operator/Downloads/ab_analitica/
+output: /home/operator/InterOmics/workflows/interomics_snakemake/
 
 refgenome:
    ref_dir: /home/operator/InterOmics/workflows/interomics_snakemake/reference/
-   ref: /home/operator/InterOmics/workflows/interomics_snakemake/reference/GRCh38_numeric_genome.fasta
-   bed: /home/operator/InterOmics/workflows/interomics_snakemake/reference/abanalitica_exome.numeric.bed
-   #/home/operator/InterOmics/apps/gatk_resources/SureSelectXT_Human_All_Exon_V7.bed
+   ref: /home/operator/InterOmics/workflows/interomics_snakemake/reference/GRCh38_character_genome.fasta
+   bed: /home/operator/InterOmics/apps/gatk_resources/SureSelectXT_Human_All_Exon_V7.bed.gz
    interval: /home/operator/InterOmics/apps/gatk_resources/abanalitica_exome.interval_list
    #SureSelectXT_Human_All_Exon_V6+UTRs.interval_list
    dict: /home/operator/InterOmics/workflows/interomics_snakemake/reference/GRCh38_character_genome.dict
@@ -40,6 +39,8 @@ threads:
    bwa: 13
    gatk:
    deepvariant: 56
+   recal_table: 8
+   recal_apply: 8
 
 ram_memory:
    markduplicates: 102400

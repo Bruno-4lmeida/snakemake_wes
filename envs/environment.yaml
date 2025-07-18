@@ -1,0 +1,7 @@
+name: interomics_snakemake
+channels:
+ - bioconda
+ - conda-forge
+ - defaults
+dependencies:
+  - snakemake=8.16.0

@@ -1,0 +1,12 @@
+bcftools annotate \
+    --rename-chrs <(zcat /home/operator/InterOmics/workflows/interomics_snakemake/reference/dbsnp_156_chr.vcf.gz | \
+    awk '/^#/ {print $0} !/^#/ {if ($1 ~ /^chr/) print substr($1,4); else print $1}') \
+    /home/operator/InterOmics/workflows/interomics_snakemake/reference/dbsnp_156_chr.vcf.gz \
+    -Oz -o /home/operator/InterOmics/workflows/interomics_snakemake/reference/dbsnp_156_numeric.vcf.gz
+
+bcftools index /home/operator/InterOmics/workflows/interomics_snakemake/reference/dbsnp_156_numeric.vcf.gz
+### opcao 2
+zcat /home/operator/InterOmics/workflows/interomics_snakemake/reference/dbsnp_156_chr.vcf.gz | \
+awk '{if ($0 ~ /^#/) print $0; else if ($1 ~ /^chr/) $1=substr($1, 4); print $0}' | bgzip -c > dbsnp_156_numeric.vcf.gz
+
+bcftools index /home/operator/InterOmics/workflows/interomics_snakemake/reference/dbsnp_156_numeric.vcf.gz

@@ -1,0 +1,6 @@
+name: trim-galore
+channels:
+  - bioconda
+# trim galore nao esta disponivel no conda anymore
+dependencies:
+  - bioconda::trim-galore

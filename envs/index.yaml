@@ -1,0 +1,8 @@
+name: index
+channels:
+ - bioconda
+ - conda-forge
+dependencies:
+  - bioconda::bwa
+  - bioconda::samtools
+  - bioconda::picard=2.26

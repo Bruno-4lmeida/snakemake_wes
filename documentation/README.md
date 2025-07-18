@@ -1,0 +1,165 @@
+# interomics_snakemake
+Sindacato dei Bioinformatici
+2024-04-17
+
+## 1. Introduction
+
+Here, we will describe the steps to build a
+[snakemake](https://snakemake.github.io/snakemake-workflow-catalog/)
+workflow for optimize pipelines of analysis of omics data.
+
+## 2. Requirements and preparation
+
+For this tutorial, we will need:
+
+-   [Ubuntu 22.04
+    LTS](https://learn.microsoft.com/en-us/windows/wsl/install): we will
+    use this WSL 2 version;
+
+-   [java JRE e JDK
+    v.17](https://www.java.com/pt-BR/download/manual.jsp): simply use
+    the command *sudo apt-get install openjdk-17-jdk openjdk-17-jre.*
+    Although this is not the newest version, it will ensure
+    compatibility with GATK;
+
+-   [python v.3.10+](https://www.python.org/): we will build the
+    workflow based on this version;
+
+-   [mamba
+    v.1.5.8](https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html#mamba-install):
+    to create environments in python;
+
+-   [snakemake](https://snakemake.readthedocs.io/en/stable/getting_started/installation.html):
+    the installation of snakemake (see full installation in the link)
+    will be in a separated environment managed by mamba;
+
+-   [SRA
+    Toolkit](https://github.com/ncbi/sra-tools/wiki/01.-Downloading-SRA-Toolkit):
+    this NCBI tool will allow us to download WES reads from SRA
+    database;
+
+-   [pigz v. 2.6+](https://zlib.net/pigz/): this will compress the fastq
+    files to save space. It can be installed using apt-get.
+
+Our starting point will be creating a folder called InterOmics and
+populate it with two additional subfolders: samples and apps. The folder
+samples is the location where we will donwnload the fastq files, while
+apps will be where some executables will be placed, e.g., the SRA tookit
+and fastqc binary files. Then, we will setup some environmental
+variables, and finally, enter in the snakemake environment.
+
+> NOTE: it is recommended to check if unzip and tar is installed in
+> order to compress binary files. To install unzip, one can use *sudo
+> apt-get install unzip*, meanwhile tar is usually already installed
+> with ubuntu.
+
+``` {bash}
+
+#create directories
+
+cd $HOME
+mkdir -p InterOmics/samples
+mkdir -p InterOmics/apps
+mkdir -p InterOmics/workflows
+mkdir -p InterOmics/output/fastqc/
+mkdir -p InterOmics/output/multiqc/
+
+#create environmental variables
+
+export threads=$(cat /proc/cpuinfo | grep processor | wc -l)
+export memory=$(free -m | awk -F" " 'NR>1 {print $2}' | sed -n 1p)
+export home_dir=$HOME/InterOmics
+export sratoolkit=$home_dir/apps/sratoolkit/bin
+```
+
+## 3. Donwloading samples
+
+In this example, we will use data of a family having a child with autism
+and epilepsy
+([SRP496542](https://www.ncbi.nlm.nih.gov/Traces/study/?acc=SRP496542&o=acc_s%3Aa)).
+
+``` {bash}
+
+cd $home_dir/samples
+
+for i in $(cat samples.txt)
+do
+  ${sratoolkit}/fasterq-dump --progress --threads ${threads} $i 
+  pigz $i"_1.fastq"
+  pigz $i"_2.fastq"
+done
+```
+
+> NOTE: if you are using WSL or WSL2, ensure that in the samples.txt
+> files has not the “\r” special character in the end of each line. It
+> can be removed using the command *sed -i ’s/*//’ samples.txt\*.
+
+## 4. Adapting an existing workflow
+
+One can start this workflow by adapting an existing workflow that can be
+found on
+[github](https://github.com/kevin-wamae/snakemake-illumina-fastqc/tree/main).
+Also, in order to this workflow work, it was necessary to install two
+additional modules:
+
+``` {bash}
+
+cd $home_dir
+
+pip install pyasyncore
+pip install pyasynchat
+
+cp snakemake-illumina-fastqc $home_dir/workflows
+
+conda env create \
+--file ./workflows/snakemake-illumina-fastqc/workflow/envs/environment.yaml
+```
+
+Next, the following changes were made in order to make the workflow
+compatible:
+
+1.  In the *snakemake-illumina-fastqc/config/config.yaml* file, replace
+    the paths to samples, fastqc output and multiqc outputs by:
+
+    -   samples/
+
+    -   output/fastqc/
+
+    -   output/multiqc/
+
+2.  In the *snakemake-illumina-fastqc/workflow/envs/fastqc.yaml* file:
+
+    -   removed the version requirement
+
+3.  In the *snakemake-illumina-fastqc/workflow/envs/multiqc.yaml* file:
+
+    -   change the channels to add conda-forge, bioconda and defaults in
+        that order.
+
+    -   removed the version requirement
+
+4.  In the *snakemake-illumina-fastqc/workflow/Snakefile* file:
+
+    -   replace \_R1 and \_R2 pattern of the fastq files by \_1 and \_2
+        pattern;
+
+    -   add the absolute PATH to the configfile (line 9).
+
+    -   added inputs in the multiqc rule so it will only be executed
+        after the fastqc rule is finished
+
+To start the workflow we can do:
+
+``` {bash}
+
+conda activate fastqc-multiqc-pipeline
+
+cd $home_dir
+snakemake \
+--snakefile ./workflows/snakemake-illumina-fastqc/workflow/Snakefile \
+--cores $threads \
+--use-conda
+```
+
+The workflow automatically downloads fastqc and multiqc applications and
+performs the QC analysis.

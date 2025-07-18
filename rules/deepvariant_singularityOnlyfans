@@ -1,0 +1,51 @@
+input_dir = "/home/operator/Downloads/ab_analitica_pt2/output_interomics/recal_apply/"
+output_dir = "/home/operator/Downloads/ab_analitica_pt2/"
+reference_dir = "/home/operator/InterOmics/workflows/interomics_snakemake/reference/"
+deep_sif = "/home/operator/InterOmics/workflows/interomics_snakemake/deepvariant_latest.sif"  # Path to your SIF file
+
+# Get sample names from the directory
+(SAMPLES,) = glob_wildcards(input_dir + "{sample}_markduplicates_recal.bam")
+print(SAMPLES)
+
+# Rule all for all output files
+rule all:
+    input:
+        expand(output_dir + "vcf/call/{sample}.g.vcf.gz", sample=SAMPLES),  # Output from variant caller
+        expand(output_dir + "vcf/call/{sample}.vcf.gz", sample=SAMPLES)     # Output GVCF
+
+rule deepvariant:
+    input:
+        bam=input_dir + "{sample}_markduplicates_recal.bam",
+        ref=reference_dir + "GRCh38_numeric_genome.fasta",
+    output:
+        gvcf=output_dir + "vcf/call/{sample}.g.vcf.gz",
+        vcf=output_dir + "vcf/call/{sample}.vcf.gz",
+    params:
+        thread=50,
+        bam_dir=input_dir,
+        ref_dir=reference_dir,
+        out_dir=output_dir + "vcf/call/",
+        model_type="WES",  # Adjust as necessary
+        deep_sif=deep_sif,
+    benchmark: "benchmarks/deepvariant_{sample}_benchmark.txt",
+
+    shell:
+        """
+        echo "##############################################"
+        echo "--------    Running DEEP VARIANT    ----------"
+        echo "##############################################"
+
+        singularity exec \
+            --bind {params.bam_dir}:/input \
+            --bind {params.ref_dir}:/reference \
+            --bind {params.out_dir}:/output \
+            {params.deep_sif} \
+            /opt/deepvariant/bin/run_deepvariant \
+            --num_shards={params.thread} \
+            --model_type={params.model_type} \
+            --ref=/reference/GRCh38_numeric_genome.fasta \
+            --regions=/reference/abanalitica_exome.bed \
+            --reads=/input/{wildcards.sample}_markduplicates_recal.bam \
+            --output_vcf=/output/{wildcards.sample}.vcf.gz \
+            --output_gvcf=/output/{wildcards.sample}.g.vcf.gz
+        """

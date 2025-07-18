@@ -1,7 +1,7 @@
 # MAIN SNAKEFILE
 configfile: "configcnvs.yaml"
 # To get the samples names from sample dir
-(SAMPLES,) = glob_wildcards(config["input"] + "{sample}_markduplicates_recal.bam")
+(SAMPLES,) = glob_wildcards(config["input"] + "{sample}_recal.bam")
 #print(SAMPLES)
 print(f"Sample names: {', '.join(SAMPLES)}")
 
@@ -12,7 +12,12 @@ include: "rules/delly_cnv.snakefile"
 include: "rules/delly_filter.snakefile"
 include: "rules/sansa.snakefile"
 include: "rules/sansavcf.snakefile"
-include: "rules/vep.snakefile"
+include: "rules/annotSV.snakefile"
+include: "rules/manta.snakefile"
+include: "rules/fix_mantaVCF.snakefile"
+include: "rules/annotSVManta.snakefile"
+include: "rules/clinvar.snakefile"
+#include: "rules/vep.snakefile"
 
 # rule all for all output files
 rule all:
@@ -23,18 +28,34 @@ rule all:
         ## DELLY FILTER (convert to vcf)
         expand(config["output"] + "output_interomics/delly/cnvs/{sample}_cnv.vcf.gz", sample=SAMPLES),
         expand(config["output"] + "output_interomics/delly/svs/{sample}_sv.vcf.gz", sample=SAMPLES),
+        expand(config["output"] + "output_interomics/delly/cnvs/{sample}_cnv.vcf.gz", sample=SAMPLES),
+        expand(config["output"] + "output_interomics/delly/svs/{sample}_sv.vcf.gz", sample=SAMPLES),
 
         ## SANSA
-        expand(config["output"] + "output_interomics/sansa/cnvs/{sample}_cnv_anno.bcf", sample=SAMPLES),
-        expand(config["output"] + "output_interomics/sansa/cnvs/{sample}_cnv_query.tsv.gz", sample=SAMPLES),
-        expand(config["output"] + "output_interomics/sansa/svs/{sample}_SV_anno.bcf", sample=SAMPLES),
-        expand(config["output"] + "output_interomics/sansa/svs/{sample}_SV_query.tsv.gz", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/sansa/cnvs/{sample}_cnv_anno.bcf", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/sansa/cnvs/{sample}_cnv_query.tsv.gz", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/sansa/svs/{sample}_SV_anno.bcf", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/sansa/svs/{sample}_SV_query.tsv.gz", sample=SAMPLES),
+
         ## VCF SANSA
-        expand(config["output"] + "output_interomics/sansa/cnvs/{sample}_cnv_anno.vcf.gz", sample=SAMPLES),
-        expand(config["output"] + "output_interomics/sansa/svs/{sample}_SV_anno.vcf.gz", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/sansa/cnvs/{sample}_cnv_anno.vcf.gz", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/sansa/svs/{sample}_SV_anno.vcf.gz", sample=SAMPLES),
+
+        ## MANTA
+        expand(config["output"] + "output_interomics/manta/{sample}/results/variants/candidateSV.vcf.gz", sample=SAMPLES),
+        expand(config["output"] + "output_interomics/manta/{sample}/{sample}_fixed.vcf", sample=SAMPLES),
+        expand(config["output"] + "output_interomics/annotsv/manta/{sample}_annotsv_manta.tsv", sample=SAMPLES),
+
+
+        ## ANNOTSV
+        #expand(config["output"] + "output_interomics/annotsv/{sample}_annotsv_cnv.tsv", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/annotsv/{sample}_annotsv_SVs.tsv", sample=SAMPLES),
+
+        ### CLINVAR
+        #expand(config["output"] + "output_interomics/clinvar/{sample}/cnvs.clinvar.vcf", sample=SAMPLES),
 
         ## VEP
         #expand(config["output"] + "output_interomics/cnvs/cnmops/cnmops_cnvs_annotated.vcf", sample=SAMPLES),
-        expand(config["output"] + "output_interomics/vep/cnvs/{sample}_cnvs_vep.vcf", sample=SAMPLES),
-        expand(config["output"] + "output_interomics/vep/svs/{sample}_svs_vep.vcf", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/vep/cnvs/{sample}_cnvs_vep.vcf", sample=SAMPLES),
+        #expand(config["output"] + "output_interomics/vep/svs/{sample}_svs_vep.vcf", sample=SAMPLES),
 

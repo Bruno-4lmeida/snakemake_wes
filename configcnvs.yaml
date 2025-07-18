@@ -1,9 +1,9 @@
 # GENERAL-INPUT CHANGE FREELY 
 # paths always with "/" at the end!
 # PATH TO THE BAM FILES!
-input: /home/operator/Downloads/cholestasis_reanalysis/output_interomics/recal_apply/
+input: /home/operator/Downloads/cnvs_cholestasis/samples/
 
-output: /home/operator/InterOmics/workflows/interomics_snakemake/
+output: /home/operator/Downloads/cnvs_cholestasis/
 
 refgenome:
    ref_dir: /home/operator/InterOmics/workflows/interomics_snakemake/reference/
@@ -17,5 +17,6 @@ refgenome:
    map: /home/operator/InterOmics/workflows/interomics_snakemake/reference/Homo_sapiens.GRCh38.dna.primary_assembly.fa.r101.s501.blacklist
    gnomad_sv: /home/operator/InterOmics/workflows/interomics_snakemake/reference/gnomad.v4.1.sv.sites.vcf
    gtf: /home/operator/InterOmics/workflows/interomics_snakemake/reference/Homo_sapiens.GRCh38.109.gtf.gz
+   annotsvdb: /home/operator/cariotipagem/VKaryo/reference/AnnotSV_DB
 
 

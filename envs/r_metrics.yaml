@@ -1,0 +1,16 @@
+name: r_metrics
+channels:
+  - conda-forge
+dependencies:
+  - r-base
+  - r-devtools
+  - r-biocmanager
+  - r-data.table
+  - r-tidyverse
+  - r-optparse
+  - bioconductor-cn.mops
+  - bioconductor-rsamtools
+  - bioconductor-genomicranges
+  - bioconductor-biostrings
+  - bioconductor-xvector
+  - bioconductor-rhtslib

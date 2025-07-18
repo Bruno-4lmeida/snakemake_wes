@@ -1,0 +1,6 @@
+name: vcfanno
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - vcfanno
