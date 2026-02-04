@@ -14,7 +14,7 @@ O `Snakefile` principal:
 - Detecta automaticamente as amostras a partir do diretório de entrada
 - Inclui as rules necessárias de acordo com as opções selecionadas
 
-Fluxo geral (alto nível):
+Fluxo geral:
 
 1. **Detecção de amostras**
 2. **Pré-processamento e QC** (fastp + MultiQC)
